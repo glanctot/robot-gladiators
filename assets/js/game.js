@@ -1,24 +1,45 @@
-var fight = function(enemy) {
-  // repeat and execute as long as the enemy robot is still alive
-  while(playerInfo.health > 0 && enemy.health > 0){
-    var promptFight = window.prompt("Would you like to FIGHT or SKIP this battle? Enter 'FIGHT' or 'SKIP' to choose.");
-
-    if (promptFight === "skip" || promptFight === "SKIP") {
-      // confirm player wants to skip
-      var confirmSkip = window.confirm("Are you sure you'd like to quit?");
+var fightOrSkip = function () {
+  var promptFight = window.prompt("Would you like to FIGHT or SKIP this battle?");
   
-      // if yes, leave fight
+  if (promptFight === "" || promptFight === null) {
+    window.alert("You need to provide a valid answer!  Please try again.");
+    return fightOrSkip();
+  }
+
+  promptFight = promptFight.toLowerCase();
+
+  if (promptFight === "skip") {
+    //confirm player wants to skip
+    var confirmSkip = window.confirm("Are you sure you'd like to quit?");
+    //if yes leave fight
       if (confirmSkip) {
         window.alert(playerInfo.name + " has decided to skip this fight.  Goodbye!");
-        // subtract money from playerMoney for skipping
+        // subtract money from player for skipping
         playerInfo.money = Math.max(0, playerInfo.money - 10);
-        console.log("playerMoney", playerInfo.money);
-        break;
+        
+        return true;
       }
     }
-    
-    // if player chooses to fight, then fight
-    if (promptFight === "fight" || promptFight === "FIGHT") {
+    return false;
+}
+
+var fight = function(enemy) {
+  // who goes first
+  var isPlayerTurn = true;
+
+  if (Math.random() > 0.5) {
+    isPlayerTurn = false;
+  }
+
+  // repeat and execute as long as the enemy robot is still alive
+  while(playerInfo.health > 0 && enemy.health > 0){
+    // ask player if they'd like to fight or skip using fightorskip function
+    if (isPlayerTurn) {
+      if (fightOrSkip()) {
+      //if true, leave fight by breaking loop
+      break;
+    }
+     
    //Subtract the value of `playerAttack` from the value of `enemyHealth` and use that result to update the value in the `enemyHealth` variable
    var damage = randomNumber(playerInfo.attack - 3, playerInfo.attack);
 
@@ -34,16 +55,13 @@ var fight = function(enemy) {
       //award player money for winning
       playerInfo.money = playerInfo.money + 20;
       break;
-    }
-    else {
+    } else {
       window.alert(enemy.name + " still has " + enemy.health + " health left.");
     }
-  
-    // Subtract the value of `enemyAttack` from the value of `playerHealth` and use that result to update the value in the `playerHealth` variable.
+  } else {
     var damage = randomNumber(enemy.attack - 3, enemy.attack);
-    
-    playerInfo.health = Math.max(0, playerInfo.health - damage);
   
+    playerInfo.health = Math.max(0, playerInfo.health - damage);
     // Log a resulting message to the console so we know that it worked.
     console.log(enemy.name + " attacked " + playerInfo.name + ". " + playerInfo.name + " now has " + playerInfo.health + " remaining.");
   
@@ -51,11 +69,12 @@ var fight = function(enemy) {
     if (playerInfo.health <= 0) {
       window.alert(playerInfo.name + " has died.");
       break;
-    }
-    else {
+    } else {
       window.alert(playerInfo.name + " still has " + playerInfo.health + " health left.");
     }
-    }
+  }
+  // switch turn order for next round
+  isPlayerTurn = !isPlayerTurn;
   }
   }
   
@@ -111,19 +130,17 @@ if (playAgainConfirm) {
 
 var shop = function() {
   // ask player what they would like to do
-  var shopOptionPrompt = window.prompt("Would you like to REFILL your health, UPGRADE your attack, or LEAVE the store? Please enter one: 'REFILL', 'UPGRADE', or 'LEAVE' to make a choice.");
+  var shopOptionPrompt = window.prompt("Would you like to REFILL your health, UPGRADE your attack, or LEAVE the store? Please enter 1 for REFILL, 2 for UPGRADE or 3 for LEAVE.");
 // switch to carry out action
+shopOptionPrompt = parseInt(shopOptionPrompt);
 switch (shopOptionPrompt) {
-  case "REFILL":
-  case "refill":
+  case 1:
     playerInfo.refillHealth();
     break;
-  case "UPGRADE":
-  case "upgrade":
+  case 2:
     playerInfo.upgradeAttack();
     break;
-  case "LEAVE":  
-  case "leave":
+  case 3:
     window.alert("Leaving the store.");
     break;
   default:
